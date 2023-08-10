@@ -1,6 +1,6 @@
 # test_task_backend
 
-# how to ran the codebase
+# how to ran the codebase and test
 
 1. `npm install`
 2. `npm start`
@@ -36,3 +36,17 @@
               	"oldPassword":"onetwo",
               	"newPassword":"password"
               }
+
+# how to review the code
+The code follows Hexagonal Architecture. Each module in src/ will have adapters, domain, and application.
+Adapters
+- Drivers
+    - these are the input ports that control the usecases in the application layer like REST API express server and GraphQL Apollo server
+- Driven
+     - these are the output ports the usecases use to get a job done like persistence(db) and other services like hashing, qrgeneration
+
+Domain
+ - the business rules are written here and it is not dependent on any thing in the system
+
+Application:
+ - this is where the usecase is implemented and defined. all the output port that the usecase use like persistence interfaces are also defined here
