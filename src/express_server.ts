@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-var cors = require("cors");
+let cors = require("cors");
 
 const server = express();
 server.use(
