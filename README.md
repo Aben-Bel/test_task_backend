@@ -8,7 +8,7 @@
     - First signup using email and password
     - Login using the email and password and get a QRCODE data:image
     - go to this website to convert the data:image to png 'https://onlinepngtools.com/convert-base64-to-png'
-    - Scan using google authenticator to get OTP. (android app)[https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en&gl=US]
+    - Scan using google authenticator to get OTP. [android app](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en&gl=US)
     - pass the OTP to the verify endpoint to get JWT token
     - use the JWT token for bearer authorization to change password
 4. GraphQL Endpoint: http://localhost:4000/graphql
