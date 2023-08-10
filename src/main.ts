@@ -60,22 +60,23 @@ import { startStandaloneServer } from "@apollo/server/standalone";
       if (result && result.email) {
         const user = await userAdapterPersistence.loadUser(result.email);
         if (user) {
-          return true;
+          return user;
         } else {
-          return false;
+          return undefined;
         }
       }
-      return false;
+      return undefined;
     } catch (e: any) {
       console.log("error validating token: " + e.message);
-      return false;
+      return undefined;
     }
   };
 
   const authGuard = async (req: Request, res: Response, next: NextFunction) => {
     const authToken = req.get("authorization");
     if (authToken) {
-      if (await validateToken(authToken)) {
+      const user = await validateToken(authToken);
+      if (user) {
         next();
       } else {
         return res.status(401).send({ error: "Invalid token" });

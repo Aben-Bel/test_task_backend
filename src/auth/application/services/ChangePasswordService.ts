@@ -24,7 +24,7 @@ export class ChangePasswordService implements ChangePasswordUseCase {
   ): Promise<boolean> {
     const user: User = await this.loadUserPort.loadUser(changePassword.email);
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new Error("User doesn't exist");
     }
     if (
       !(await this.hashService.compare(
@@ -32,7 +32,7 @@ export class ChangePasswordService implements ChangePasswordUseCase {
         user.password
       ))
     ) {
-      throw new Error("Invalid email or password");
+      throw new Error("credentials mismatch");
     }
 
     await this.changePasswordPort.changePassword(

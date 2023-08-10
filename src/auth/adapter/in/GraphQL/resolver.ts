@@ -1,4 +1,3 @@
-import { Request } from "express";
 import { ChangePasswordCommand } from "../../../application/port/in/command/ChangePasswordCommand";
 import { LoginUserCommand } from "../../../application/port/in/command/LoginUserCommand";
 import { RegisterUserCommand } from "../../../application/port/in/command/RegisterUserCommand";
@@ -88,13 +87,12 @@ export class ResolverCreator {
           args: { email: string; newPassword: string; oldPassword: string },
           context: any
         ) => {
+          const { email, newPassword, oldPassword } = args;
           const authorizationHeader = context.headers.authorization;
-          if (!this.validateToken(authorizationHeader)) {
-            console.log("invalid token ");
+          const user = await this.validateToken(authorizationHeader);
+          if (!user || user.email !== email) {
             return { Error: "Not Authrized" };
           }
-          console.log("valid token");
-          const { email, newPassword, oldPassword } = args;
           const changePasswordCommand = new ChangePasswordCommand(
             oldPassword,
             newPassword,
