@@ -18,26 +18,26 @@ export default function UserRouter(
 ) {
   const router = express.Router();
 
-  router.post(
-    "/changePassword",
-    authGuard,
-    async (req: Request, res: Response) => {
-      const { oldPassword, newPassword, email }: any = req.body;
-      const changePasswordCommand = new ChangePasswordCommand(
-        oldPassword,
-        newPassword,
-        email
-      );
-      try {
-        const changed = await changePassword.changePassword(
-          changePasswordCommand
-        );
-        res.send(changed);
-      } catch (e) {
-        res.status(500).send({ message: "Cannot change password" });
-      }
+  router.post("/changePassword", authGuard, async (req: any, res: Response) => {
+    const { oldPassword, newPassword, email }: any = req.body;
+    if (req.user.email !== email) {
+      res.status(401).send({ message: "unauthorized access" });
+      return;
     }
-  );
+    const changePasswordCommand = new ChangePasswordCommand(
+      oldPassword,
+      newPassword,
+      email
+    );
+    try {
+      const changed = await changePassword.changePassword(
+        changePasswordCommand
+      );
+      res.send(changed);
+    } catch (e) {
+      res.status(500).send({ message: "Cannot change password" });
+    }
+  });
 
   router.post("/login", async (req: Request, res: Response) => {
     try {

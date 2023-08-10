@@ -72,11 +72,12 @@ import { startStandaloneServer } from "@apollo/server/standalone";
     }
   };
 
-  const authGuard = async (req: Request, res: Response, next: NextFunction) => {
+  const authGuard = async (req: any, res: Response, next: NextFunction) => {
     const authToken = req.get("authorization");
     if (authToken) {
       const user = await validateToken(authToken);
       if (user) {
+        req.user = user;
         next();
       } else {
         return res.status(401).send({ error: "Invalid token" });
@@ -93,6 +94,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
     changePassword,
     authGuard
   );
+  
   const url: any = process.env.MONGODB_URI || "";
   const resolversCreator = new ResolverCreator(
     loginUser,
