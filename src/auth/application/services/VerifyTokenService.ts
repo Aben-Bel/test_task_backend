@@ -3,19 +3,22 @@ import { VerifyTokenUseCase } from "../port/in/usecase/VerifyTokenUseCase";
 import { LoadUserPort } from "../port/out/LoadUserPort";
 import { LoadVerifyInfoPort } from "../port/out/LoadVerifyInfoPort";
 import * as speakeasy from "speakeasy";
-import * as jwt from "jsonwebtoken";
 import Verification from "../../domain/Verification";
+import { JWTServiceI } from "../port/out/JWTServiceI";
 
 export class VerifyTokenService implements VerifyTokenUseCase {
   private loadUserPort: LoadUserPort;
   private loadVerifyInfoPort: LoadVerifyInfoPort;
+  private jwtService: JWTServiceI;
 
   constructor(
     loadUserPort: LoadUserPort,
-    loadVerifyInfoPort: LoadVerifyInfoPort
+    loadVerifyInfoPort: LoadVerifyInfoPort,
+    jwtService: JWTServiceI
   ) {
     this.loadUserPort = loadUserPort;
     this.loadVerifyInfoPort = loadVerifyInfoPort;
+    this.jwtService = jwtService;
   }
 
   async verifyToken(verifyToken: VerifyTokenCommand): Promise<string> {
@@ -34,14 +37,11 @@ export class VerifyTokenService implements VerifyTokenUseCase {
       encoding: "base32",
       token: verifyToken.token,
     });
-    console.log("vrified: " + verified);
     if (!verified) {
       throw new Error("Invalid email or token");
     }
 
-    const jwtToken = jwt.sign({ email: user.email }, "secret", {
-      expiresIn: "1h",
-    });
+    const jwtToken = this.jwtService.encode({ email: user.email });
     return jwtToken;
   }
 }

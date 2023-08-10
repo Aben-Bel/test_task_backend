@@ -26,7 +26,6 @@ export class UserRegisterService implements UserRegisterUseCase {
     const user: User = await this.loadUserPort.loadUser(
       userRegisterCommand.email
     );
-    console.log("loaded user: " + user);
     if (user) throw new Error("User already exists");
 
     return await this.registerUserPort.registerUser(

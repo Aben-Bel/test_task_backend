@@ -2,19 +2,43 @@ import { ChangePasswordUseCase } from "../port/in/usecase/ChangePasswordUseCase"
 import { ChangePasswordCommand } from "../port/in/command/ChangePasswordCommand";
 import { LoadUserPort } from "../port/out/LoadUserPort";
 import { ChangePasswordPort } from "../port/out/ChangePasswordPort";
+import User from "../../domain/User";
+import { HashService } from "../port/out/HashString";
 
-class ChangePasswordService implements ChangePasswordUseCase {
+export class ChangePasswordService implements ChangePasswordUseCase {
   private loadUserPort: LoadUserPort;
   private changePasswordPort: ChangePasswordPort;
+  private hashService: HashService;
+
   constructor(
     loadUserPort: LoadUserPort,
-    changePasswordPort: ChangePasswordPort
+    changePasswordPort: ChangePasswordPort,
+    hashService: HashService
   ) {
     this.changePasswordPort = changePasswordPort;
     this.loadUserPort = loadUserPort;
+    this.hashService = hashService;
   }
-  changePassword(changePassword: ChangePasswordCommand): boolean {
-    const value: any = undefined;
-    return value;
+  async changePassword(
+    changePassword: ChangePasswordCommand
+  ): Promise<boolean> {
+    const user: User = await this.loadUserPort.loadUser(changePassword.email);
+    if (!user) {
+      throw new Error("Invalid email or password");
+    }
+    if (
+      !(await this.hashService.compare(
+        changePassword.oldPassword,
+        user.password
+      ))
+    ) {
+      throw new Error("Invalid email or password");
+    }
+
+    await this.changePasswordPort.changePassword(
+      changePassword.email,
+      await this.hashService.hash(changePassword.newPassword)
+    );
+    return true;
   }
 }

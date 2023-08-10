@@ -6,13 +6,38 @@ import { LoginUserCommand } from "../../../../application/port/in/command/LoginU
 import { RegisterUserCommand } from "../../../../application/port/in/command/RegisterUserCommand";
 import { VerifyTokenCommand } from "../../../../application/port/in/command/VerifyTokenCommand";
 import { VerifyTokenUseCase } from "../../../../application/port/in/usecase/VerifyTokenUseCase";
+import { ChangePasswordCommand } from "../../../../application/port/in/command/ChangePasswordCommand";
+import { ChangePasswordUseCase } from "../../../../application/port/in/usecase/ChangePasswordUseCase";
 
 export default function UserRouter(
   loginUser: LoginUserUseCase,
   signupUser: UserRegisterUseCase,
-  verifyUser: VerifyTokenUseCase
+  verifyUser: VerifyTokenUseCase,
+  changePassword: ChangePasswordUseCase,
+  authGuard: any
 ) {
   const router = express.Router();
+
+  router.post(
+    "/changePassword",
+    authGuard,
+    async (req: Request, res: Response) => {
+      const { oldPassword, newPassword, email }: any = req.body;
+      const changePasswordCommand = new ChangePasswordCommand(
+        oldPassword,
+        newPassword,
+        email
+      );
+      try {
+        const changed = await changePassword.changePassword(
+          changePasswordCommand
+        );
+        res.send(changed);
+      } catch (e) {
+        res.status(500).send({ message: "Cannot change password" });
+      }
+    }
+  );
 
   router.post("/login", async (req: Request, res: Response) => {
     try {
@@ -24,7 +49,6 @@ export default function UserRouter(
       const result = await loginUser.loginUser(loginCommand);
       res.send(result);
     } catch (err) {
-      console.log("error: ", err);
       res.status(500).send({ message: "Error signing user" });
     }
   });
@@ -51,9 +75,7 @@ export default function UserRouter(
         email,
         token
       );
-      console.log("verifyToken", verifyToken);
       const result = await verifyUser.verifyToken(verifyToken);
-      console.log("verification result: ", result);
       res.send(result);
     } catch (e: any) {
       console.log("error: ", e);

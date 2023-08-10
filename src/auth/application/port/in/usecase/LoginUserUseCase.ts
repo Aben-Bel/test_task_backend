@@ -1,5 +1,5 @@
 import { LoginUserCommand } from "../command/LoginUserCommand";
 
 export interface LoginUserUseCase {
-  loginUser(loginUser: LoginUserCommand): Promise<any>;
+  loginUser(loginUser: LoginUserCommand): Promise<string>;
 }
