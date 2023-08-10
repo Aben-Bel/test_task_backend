@@ -22,15 +22,24 @@ import { NextFunction, Request, Response } from "express";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
 (async () => {
+  // Declare the user repository and mapper objects.
   const userRepository = new UserRepository();
   const userMapper = new UserMapper();
+
+  // Declare the hash service and JWT service.
   const hashService = new HashString();
   const jwtService = new JWTService();
+
+  // Declare the user adapter persistence object.
   const userAdapterPersistence: UserPersistenceAdapter =
     new UserPersistenceAdapter(userRepository, userMapper);
+
+  // Declare the generate OTP QR code service.
   const generateOTPQRCodeService = new GenerateOTPQRCode(
     userAdapterPersistence
   );
+
+  // Declare the usecases Login, Register, Verify, ChangePassword
   const loginUser: LoginUserUseCase = new LoginUserService(
     userAdapterPersistence,
     hashService,
@@ -46,13 +55,13 @@ import { startStandaloneServer } from "@apollo/server/standalone";
     userAdapterPersistence,
     jwtService
   );
-
   const changePassword: ChangePasswordUseCase = new ChangePasswordService(
     userAdapterPersistence,
     userAdapterPersistence,
     hashService
   );
 
+  // Declare the verify token util
   const validateToken = async (token: string) => {
     try {
       token = token.split(" ")[1];
@@ -72,6 +81,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
     }
   };
 
+  // Declare the auth guard function to guard endpoints that require authentication.
   const authGuard = async (req: any, res: Response, next: NextFunction) => {
     const authToken = req.get("authorization");
     if (authToken) {
@@ -87,6 +97,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
     }
   };
 
+  // Declear our router middleware
   const userMiddleWare = UserRouter(
     loginUser,
     signUpUser,
@@ -94,7 +105,8 @@ import { startStandaloneServer } from "@apollo/server/standalone";
     changePassword,
     authGuard
   );
-  
+
+  // setup REST and GRAPHQL servers
   const url: any = process.env.MONGODB_URI || "";
   const resolversCreator = new ResolverCreator(
     loginUser,
