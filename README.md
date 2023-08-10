@@ -39,6 +39,7 @@
 
 # how to review the code
 The code follows Hexagonal Architecture. Each module in src/ will have adapters, domain, and application.
+
 Adapters
 - Drivers
     - these are the input ports that control the usecases in the application layer like REST API express server and GraphQL Apollo server
